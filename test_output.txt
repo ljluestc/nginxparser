@@ -1,0 +1,394 @@
+================================================================================
+COMPLETE NGINX PARSER TEST - ALL PRD FEATURES
+================================================================================
+
+================================================================================
+TASK_001-006: GLOBAL CONFIGURATION
+================================================================================
+  user                          : nginx
+  worker_processes              : 8
+  worker_cpu_affinity           : auto
+  error_log                     : /var/log/nginx/error.log error
+  pid                           : /var/run/nginx.pid
+  worker_rlimit_nofile          : 65535
+
+================================================================================
+TASK_007-011: EVENTS CONFIGURATION
+================================================================================
+  use                           : epoll
+  worker_connections            : 20480
+  multi_accept                  : on
+  accept_mutex                  : off
+
+================================================================================
+TASK_012-016: HTTP CONFIGURATION
+================================================================================
+  default_type                  : application/octet-stream
+  sendfile                      : on
+  keepalive_timeout             : 65
+  gzip                          : on
+
+================================================================================
+TASK_017-020: UPSTREAM CONFIGURATION (Enhanced)
+================================================================================
+
+  Upstream: backend_api
+    Load Balancing: round_robin
+    Backend IPs: 192.168.1.10:8080 192.168.1.11:8080 192.168.1.12:8080 192.168.1.13:8080
+    Servers:
+      - 192.168.1.10:8080 weight=5 max_fails=3 fail_timeout=30s
+      - 192.168.1.11:8080 weight=3 max_fails=2 fail_timeout=20s
+      - 192.168.1.12:8080 weight=1 [BACKUP]
+      - 192.168.1.13:8080 [DOWN]
+
+  Upstream: backend_web
+    Load Balancing: least_conn
+    Backend IPs: 10.0.0.10:80 10.0.0.11:80
+    Servers:
+      - 10.0.0.10:80 weight=10
+      - 10.0.0.11:80 weight=10
+
+  Upstream: backend_cache
+    Load Balancing: ip_hash
+    Backend IPs: 172.16.0.10:6379 172.16.0.11:6379
+    Servers:
+      - 172.16.0.10:6379
+      - 172.16.0.11:6379
+
+  Upstream: backend_static
+    Load Balancing: hash $request_uri consistent
+    Backend IPs: 10.1.1.10:80 10.1.1.11:80
+    Servers:
+      - 10.1.1.10:80
+      - 10.1.1.11:80
+
+================================================================================
+TASK_021-030: SERVER & LOCATION CONFIGURATION
+================================================================================
+
+  Server #1: example.com www.example.com
+    Listen: 80, [::]:80
+    Root: /var/www/html
+    Index: index.html index.htm
+    Access Log: /var/log/nginx/example.access.log  main
+    Error Log: /var/log/nginx/example.error.log  warn
+    Locations (7):
+      - / [=]
+        Index: index.html
+      - /api
+        Proxy Pass: http://192.168.1.10:8080 192.168.1.11:8080 192.168.1.12:8080 192.168.1.13:8080
+        Backend IPs: 192.168.1.10:8080 192.168.1.11:8080 192.168.1.12:8080 192.168.1.13:8080
+      - \.php$ [~]
+        FastCGI Pass: 127.0.0.1:9000
+        Root: /var/www/html
+        Index: index.php
+      - /old-path
+        Rewrites:
+          - ^/old-path/(.*)$ /new-path/$1 permanent
+          - ^/old-path$ /new-path redirect
+      - /static
+        Try Files: $uri $uri/ /index.html
+        Root: /var/www
+      - \.(jpg|jpeg|png|gif|ico)$ [~*]
+        Try Files: $uri =404
+        Root: /var/www/images
+      - /50x.html [=]
+        Root: html
+
+  Server #2: secure.example.com
+    Listen: 443 ssl, [::]:443 ssl
+    Root: /var/www/secure
+    Index: index.html index.htm
+    Access Log: /var/log/nginx/secure.access.log  main
+    SSL Certificate: /etc/nginx/ssl/cert.pem
+    SSL Certificate Key: /etc/nginx/ssl/cert.key
+    SSL Protocols: TLSv1.2 TLSv1.3
+    SSL Ciphers: HIGH:!aNULL:!MD5
+    Locations (3):
+      - /
+        Try Files: $uri $uri/ =404
+      - /api
+        Proxy Pass: http://192.168.1.10:8080 192.168.1.11:8080 192.168.1.12:8080 192.168.1.13:8080
+        Backend IPs: 192.168.1.10:8080 192.168.1.11:8080 192.168.1.12:8080 192.168.1.13:8080
+      - /admin [^~]
+        Root: /var/www/admin
+        Index: admin.html
+
+  Server #3: upstream-test.local
+    Listen: 8080
+    Locations (4):
+      - /least-conn
+        Proxy Pass: http://10.0.0.10:80 10.0.0.11:80
+        Backend IPs: 10.0.0.10:80 10.0.0.11:80
+      - /ip-hash
+        Proxy Pass: http://172.16.0.10:6379 172.16.0.11:6379
+        Backend IPs: 172.16.0.10:6379 172.16.0.11:6379
+      - /hash
+        Proxy Pass: http://10.1.1.10:80 10.1.1.11:80
+        Backend IPs: 10.1.1.10:80 10.1.1.11:80
+      - /weighted
+        Proxy Pass: http://192.168.1.10:8080 192.168.1.11:8080 192.168.1.12:8080 192.168.1.13:8080
+        Backend IPs: 192.168.1.10:8080 192.168.1.11:8080 192.168.1.12:8080 192.168.1.13:8080
+
+================================================================================
+VALIDATION SUMMARY
+================================================================================
+  [PASS] TASK_001-006 (Global)
+  [PASS] TASK_007-011 (Events)
+  [PASS] TASK_012-016 (HTTP)
+  [PASS] TASK_017-020 (Upstream)
+  [PASS] TASK_021-025 (Server)
+  [PASS] TASK_026 (Proxy Pass)
+  [PASS] TASK_027 (Modifiers)
+  [PASS] TASK_028 (FastCGI)
+  [PASS] TASK_029 (Rewrite)
+  [PASS] TASK_030 (Try Files)
+
+================================================================================
+SUCCESS! All PRD tasks implemented and validated!
+================================================================================
+
+================================================================================
+COMPLETE JSON OUTPUT
+================================================================================
+{
+  "global": {
+    "user": "nginx",
+    "worker_processes": "8",
+    "worker_cpu_affinity": "auto",
+    "error_log": "/var/log/nginx/error.log error",
+    "pid": "/var/run/nginx.pid",
+    "worker_rlimit_nofile": "65535"
+  },
+  "events": {
+    "use": "epoll",
+    "worker_connections": "20480",
+    "multi_accept": "on",
+    "accept_mutex": "off"
+  },
+  "http": {
+    "default_type": "application/octet-stream",
+    "sendfile": "on",
+    "keepalive_timeout": "65",
+    "gzip": "on"
+  },
+  "upstreams": [
+    {
+      "poolname": "backend_api",
+      "ip": "192.168.1.10:8080 192.168.1.11:8080 192.168.1.12:8080 192.168.1.13:8080",
+      "servers": [
+        {
+          "address": "192.168.1.10:8080",
+          "weight": 5,
+          "max_fails": 3,
+          "fail_timeout": "30s"
+        },
+        {
+          "address": "192.168.1.11:8080",
+          "weight": 3,
+          "max_fails": 2,
+          "fail_timeout": "20s"
+        },
+        {
+          "address": "192.168.1.12:8080",
+          "weight": 1,
+          "backup": true
+        },
+        {
+          "address": "192.168.1.13:8080",
+          "down": true
+        }
+      ],
+      "load_balancing": "round_robin"
+    },
+    {
+      "poolname": "backend_web",
+      "ip": "10.0.0.10:80 10.0.0.11:80",
+      "servers": [
+        {
+          "address": "10.0.0.10:80",
+          "weight": 10
+        },
+        {
+          "address": "10.0.0.11:80",
+          "weight": 10
+        }
+      ],
+      "load_balancing": "least_conn"
+    },
+    {
+      "poolname": "backend_cache",
+      "ip": "172.16.0.10:6379 172.16.0.11:6379",
+      "servers": [
+        {
+          "address": "172.16.0.10:6379"
+        },
+        {
+          "address": "172.16.0.11:6379"
+        }
+      ],
+      "load_balancing": "ip_hash"
+    },
+    {
+      "poolname": "backend_static",
+      "ip": "10.1.1.10:80 10.1.1.11:80",
+      "servers": [
+        {
+          "address": "10.1.1.10:80"
+        },
+        {
+          "address": "10.1.1.11:80"
+        }
+      ],
+      "load_balancing": "hash $request_uri consistent"
+    }
+  ],
+  "servers": [
+    {
+      "port": "80",
+      "listen": [
+        "80",
+        "[::]:80"
+      ],
+      "server_name": "example.com www.example.com",
+      "root": "/var/www/html",
+      "index": "index.html index.htm",
+      "access_log": "/var/log/nginx/example.access.log  main",
+      "error_log": "/var/log/nginx/example.error.log  warn",
+      "ssl_certificate": null,
+      "ssl_certificate_key": null,
+      "ssl_protocols": null,
+      "ssl_ciphers": null,
+      "include": "fastcgi_params",
+      "backend": [
+        {
+          "path": "/",
+          "modifier": "=",
+          "index": "index.html"
+        },
+        {
+          "path": "/api",
+          "modifier": null,
+          "proxy_pass": "http://192.168.1.10:8080 192.168.1.11:8080 192.168.1.12:8080 192.168.1.13:8080",
+          "backend_ip": "192.168.1.10:8080 192.168.1.11:8080 192.168.1.12:8080 192.168.1.13:8080",
+          "backend_path": "/api"
+        },
+        {
+          "path": "\\.php$",
+          "modifier": "~",
+          "fastcgi_pass": "127.0.0.1:9000",
+          "root": "/var/www/html",
+          "index": "index.php"
+        },
+        {
+          "path": "/old-path",
+          "modifier": null,
+          "rewrites": [
+            "^/old-path/(.*)$ /new-path/$1 permanent",
+            "^/old-path$ /new-path redirect"
+          ]
+        },
+        {
+          "path": "/static",
+          "modifier": null,
+          "try_files": "$uri $uri/ /index.html",
+          "root": "/var/www"
+        },
+        {
+          "path": "\\.(jpg|jpeg|png|gif|ico)$",
+          "modifier": "~*",
+          "try_files": "$uri =404",
+          "root": "/var/www/images"
+        },
+        {
+          "path": "/50x.html",
+          "modifier": "=",
+          "root": "html"
+        }
+      ]
+    },
+    {
+      "port": "443 ssl",
+      "listen": [
+        "443 ssl",
+        "[::]:443 ssl"
+      ],
+      "server_name": "secure.example.com",
+      "root": "/var/www/secure",
+      "index": "index.html index.htm",
+      "access_log": "/var/log/nginx/secure.access.log  main",
+      "error_log": null,
+      "ssl_certificate": "/etc/nginx/ssl/cert.pem",
+      "ssl_certificate_key": "/etc/nginx/ssl/cert.key",
+      "ssl_protocols": "TLSv1.2 TLSv1.3",
+      "ssl_ciphers": "HIGH:!aNULL:!MD5",
+      "include": "",
+      "backend": [
+        {
+          "path": "/",
+          "modifier": null,
+          "try_files": "$uri $uri/ =404"
+        },
+        {
+          "path": "/api",
+          "modifier": null,
+          "proxy_pass": "http://192.168.1.10:8080 192.168.1.11:8080 192.168.1.12:8080 192.168.1.13:8080",
+          "backend_ip": "192.168.1.10:8080 192.168.1.11:8080 192.168.1.12:8080 192.168.1.13:8080",
+          "backend_path": "/api"
+        },
+        {
+          "path": "/admin",
+          "modifier": "^~",
+          "root": "/var/www/admin",
+          "index": "admin.html"
+        }
+      ]
+    },
+    {
+      "port": "8080",
+      "listen": [
+        "8080"
+      ],
+      "server_name": "upstream-test.local",
+      "root": null,
+      "index": null,
+      "access_log": null,
+      "error_log": null,
+      "ssl_certificate": null,
+      "ssl_certificate_key": null,
+      "ssl_protocols": null,
+      "ssl_ciphers": null,
+      "include": "",
+      "backend": [
+        {
+          "path": "/least-conn",
+          "modifier": null,
+          "proxy_pass": "http://10.0.0.10:80 10.0.0.11:80",
+          "backend_ip": "10.0.0.10:80 10.0.0.11:80",
+          "backend_path": "/least-conn"
+        },
+        {
+          "path": "/ip-hash",
+          "modifier": null,
+          "proxy_pass": "http://172.16.0.10:6379 172.16.0.11:6379",
+          "backend_ip": "172.16.0.10:6379 172.16.0.11:6379",
+          "backend_path": "/ip-hash"
+        },
+        {
+          "path": "/hash",
+          "modifier": null,
+          "proxy_pass": "http://10.1.1.10:80 10.1.1.11:80",
+          "backend_ip": "10.1.1.10:80 10.1.1.11:80",
+          "backend_path": "/hash"
+        },
+        {
+          "path": "/weighted",
+          "modifier": null,
+          "proxy_pass": "http://192.168.1.10:8080 192.168.1.11:8080 192.168.1.12:8080 192.168.1.13:8080",
+          "backend_ip": "192.168.1.10:8080 192.168.1.11:8080 192.168.1.12:8080 192.168.1.13:8080",
+          "backend_path": "/weighted"
+        }
+      ]
+    }
+  ]
+}

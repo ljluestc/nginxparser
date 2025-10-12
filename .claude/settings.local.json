@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:clay-wangzhi.com)",
+      "Bash(python:*)",
+      "Bash(where python python3 py)",
+      "Bash(py taskmaster.py)",
+      "Bash(py test_enhanced.py)",
+      "Bash(py test_comprehensive.py)",
+      "Bash(py test_full_features.py)",
+      "Bash(findstr:*)",
+      "Bash(py:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
