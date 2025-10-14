@@ -1,0 +1,72 @@
+{
+  "audit_date": "2025-10-12",
+  "config_file": "nginx_with_security_headers.conf",
+  "summary": {
+    "total_servers": 3,
+    "overall_score": 55.55555555555555,
+    "servers_with_all_critical": 1,
+    "servers_with_some_critical": 0,
+    "servers_with_no_headers": 0
+  },
+  "servers": [
+    {
+      "server_name": "secure.example.com",
+      "port": "443 ssl http2",
+      "ssl": true,
+      "score": 100.0,
+      "found": 6,
+      "total": 6,
+      "missing": [],
+      "headers": {
+        "X-Frame-Options": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "X-XSS-Protection": "1; mode=block",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+        "X-Download-Options": "noopen"
+      }
+    },
+    {
+      "server_name": "basic.example.com",
+      "port": "80",
+      "ssl": false,
+      "score": 33.33333333333333,
+      "found": 2,
+      "total": 6,
+      "missing": [
+        "Content-Security-Policy",
+        "Strict-Transport-Security",
+        "X-XSS-Protection",
+        "Referrer-Policy"
+      ],
+      "headers": {
+        "X-Frame-Options": "SAMEORIGIN",
+        "X-Content-Type-Options": "nosniff",
+        "Cross-Origin-Resource-Policy": "cross-origin"
+      }
+    },
+    {
+      "server_name": "api.example.com",
+      "port": "8443 ssl",
+      "ssl": true,
+      "score": 33.33333333333333,
+      "found": 2,
+      "total": 6,
+      "missing": [
+        "Content-Security-Policy",
+        "Strict-Transport-Security",
+        "X-XSS-Protection",
+        "Referrer-Policy"
+      ],
+      "headers": {
+        "X-Frame-Options": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "Cross-Origin-Embedder-Policy": "require-corp",
+        "Cross-Origin-Opener-Policy": "same-origin",
+        "Cross-Origin-Resource-Policy": "same-site"
+      }
+    }
+  ]
+}

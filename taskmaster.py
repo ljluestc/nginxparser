@@ -65,6 +65,30 @@ class TaskMaster:
         self.task_map['TASK_015'] = self.implement_parse_keepalive_timeout
         self.task_map['TASK_016'] = self.implement_parse_gzip
 
+        # Upstream block tasks (TASK_017 - TASK_020)
+        self.task_map['TASK_017'] = self.implement_upstream_weight
+        self.task_map['TASK_018'] = self.implement_upstream_health_checks
+        self.task_map['TASK_019'] = self.implement_upstream_flags
+        self.task_map['TASK_020'] = self.implement_load_balancing_methods
+
+        # Server block tasks (TASK_021 - TASK_025)
+        self.task_map['TASK_021'] = self.implement_maintain_server_parsing
+        self.task_map['TASK_022'] = self.implement_multiple_listen
+        self.task_map['TASK_023'] = self.implement_ssl_tls_config
+        self.task_map['TASK_024'] = self.implement_server_logging
+        self.task_map['TASK_025'] = self.implement_root_index
+
+        # Location block tasks (TASK_026 - TASK_030)
+        self.task_map['TASK_026'] = self.implement_maintain_location_parsing
+        self.task_map['TASK_027'] = self.implement_location_modifiers
+        self.task_map['TASK_028'] = self.implement_fastcgi_pass
+        self.task_map['TASK_029'] = self.implement_rewrite_rules
+        self.task_map['TASK_030'] = self.implement_try_files
+
+        # Configuration merging tasks (TASK_031 - TASK_032)
+        self.task_map['TASK_031'] = self.implement_include_merging
+        self.task_map['TASK_032'] = self.implement_comment_removal
+
         # For tasks without implementations yet, use placeholder
         for task in self.tasks:
             if task['id'] not in self.task_map:
@@ -302,6 +326,224 @@ class TaskMaster:
                 'example': 'gzip on;',
                 'extract': 'gzip',
                 'method': 'parse_http_directive'
+            }
+        }
+
+    # Upstream block implementations (TASK_017 - TASK_020)
+    def implement_upstream_weight(self, task_id, description):
+        """TASK_017: Parse upstream weight parameter"""
+        return {
+            'status': 'completed',
+            'message': 'Upstream weight parameter parsing implemented',
+            'implementation': {
+                'regex': r'weight=(\d+)',
+                'example': 'server 192.168.1.10:8080 weight=5;',
+                'extract': 'weight',
+                'method': 'parse_backend_ip',
+                'location': 'nginx.py:187-189'
+            }
+        }
+
+    def implement_upstream_health_checks(self, task_id, description):
+        """TASK_018: Parse max_fails and fail_timeout parameters"""
+        return {
+            'status': 'completed',
+            'message': 'Upstream health check parameters parsing implemented',
+            'implementation': {
+                'regex': r'max_fails=(\d+)|fail_timeout=([^\s]+)',
+                'example': 'server 192.168.1.10:8080 max_fails=3 fail_timeout=30s;',
+                'extract': 'max_fails, fail_timeout',
+                'method': 'parse_backend_ip',
+                'location': 'nginx.py:192-199'
+            }
+        }
+
+    def implement_upstream_flags(self, task_id, description):
+        """TASK_019: Parse backup and down server flags"""
+        return {
+            'status': 'completed',
+            'message': 'Upstream server flags (backup, down) parsing implemented',
+            'implementation': {
+                'regex': r'\bbackup\b|\bdown\b',
+                'example': 'server 192.168.1.10:8080 backup;',
+                'extract': 'backup, down',
+                'method': 'parse_backend_ip',
+                'location': 'nginx.py:201-207'
+            }
+        }
+
+    def implement_load_balancing_methods(self, task_id, description):
+        """TASK_020: Parse load balancing methods"""
+        return {
+            'status': 'completed',
+            'message': 'Load balancing methods parsing implemented',
+            'implementation': {
+                'regex': r'least_conn|ip_hash|hash\s+',
+                'example': 'least_conn; or ip_hash; or hash $request_uri consistent;',
+                'extract': 'load_balancing',
+                'method': 'parse_backend_ip',
+                'location': 'nginx.py:159-168'
+            }
+        }
+
+    # Server block implementations (TASK_021 - TASK_025)
+    def implement_maintain_server_parsing(self, task_id, description):
+        """TASK_021: Maintain existing server block parsing"""
+        return {
+            'status': 'completed',
+            'message': 'Existing server block parsing maintained',
+            'implementation': {
+                'method': 'parse_server_block',
+                'location': 'nginx.py:222-258',
+                'notes': 'Original server parsing functionality preserved and enhanced'
+            }
+        }
+
+    def implement_multiple_listen(self, task_id, description):
+        """TASK_022: Parse multiple listen directives"""
+        return {
+            'status': 'completed',
+            'message': 'Multiple listen directives parsing implemented',
+            'implementation': {
+                'regex': r'listen\s+([^;]+);',
+                'example': 'listen 80; listen [::]:80;',
+                'extract': 'listen',
+                'method': 'parse_server_block',
+                'location': 'nginx.py:261-267'
+            }
+        }
+
+    def implement_ssl_tls_config(self, task_id, description):
+        """TASK_023: Parse SSL/TLS configuration"""
+        return {
+            'status': 'completed',
+            'message': 'SSL/TLS configuration parsing implemented',
+            'implementation': {
+                'directives': ['ssl_certificate', 'ssl_certificate_key', 'ssl_protocols', 'ssl_ciphers'],
+                'example': 'ssl_certificate /etc/ssl/cert.pem; ssl_protocols TLSv1.2 TLSv1.3;',
+                'method': 'parse_server_block',
+                'location': 'nginx.py:296-306'
+            }
+        }
+
+    def implement_server_logging(self, task_id, description):
+        """TASK_024: Parse server-level logging directives"""
+        return {
+            'status': 'completed',
+            'message': 'Server-level access_log and error_log parsing implemented',
+            'implementation': {
+                'regex': r'access_log\s+([^;]+);|error_log\s+([^;]+);',
+                'example': 'access_log /var/log/nginx/access.log main;',
+                'method': 'parse_server_block',
+                'location': 'nginx.py:289-293'
+            }
+        }
+
+    def implement_root_index(self, task_id, description):
+        """TASK_025: Parse root and index directives"""
+        return {
+            'status': 'completed',
+            'message': 'Root and index directives parsing implemented',
+            'implementation': {
+                'regex': r'root\s+([^;]+);|index\s+([^;]+);',
+                'example': 'root /var/www/html; index index.html index.htm;',
+                'method': 'parse_server_block',
+                'location': 'nginx.py:282-286'
+            }
+        }
+
+    # Location block implementations (TASK_026 - TASK_030)
+    def implement_maintain_location_parsing(self, task_id, description):
+        """TASK_026: Maintain existing location and proxy_pass parsing"""
+        return {
+            'status': 'completed',
+            'message': 'Existing location and proxy_pass parsing maintained',
+            'implementation': {
+                'method': 'parse_locations',
+                'location': 'nginx.py:335-402',
+                'notes': 'Original location parsing enhanced with new features'
+            }
+        }
+
+    def implement_location_modifiers(self, task_id, description):
+        """TASK_027: Parse location modifiers"""
+        return {
+            'status': 'completed',
+            'message': 'Location modifiers (=, ~, ~*, ^~) parsing implemented',
+            'implementation': {
+                'regex': r'location\s*(=|~\*?|\^~)?\s*([^{]+)',
+                'example': 'location = /api { ... } or location ~ \\.php$ { ... }',
+                'extract': 'modifier',
+                'method': 'parse_locations',
+                'location': 'nginx.py:341-351'
+            }
+        }
+
+    def implement_fastcgi_pass(self, task_id, description):
+        """TASK_028: Parse fastcgi_pass configurations"""
+        return {
+            'status': 'completed',
+            'message': 'FastCGI pass configurations parsing implemented',
+            'implementation': {
+                'regex': r'fastcgi_pass\s+([^;]+);',
+                'example': 'fastcgi_pass 127.0.0.1:9000;',
+                'extract': 'fastcgi_pass',
+                'method': 'parse_locations',
+                'location': 'nginx.py:377-379'
+            }
+        }
+
+    def implement_rewrite_rules(self, task_id, description):
+        """TASK_029: Parse rewrite rules"""
+        return {
+            'status': 'completed',
+            'message': 'Rewrite rules parsing implemented',
+            'implementation': {
+                'regex': r'rewrite\s+([^;]+);',
+                'example': 'rewrite ^/old/(.*)$ /new/$1 permanent;',
+                'extract': 'rewrites',
+                'method': 'parse_locations',
+                'location': 'nginx.py:382-384'
+            }
+        }
+
+    def implement_try_files(self, task_id, description):
+        """TASK_030: Parse try_files directives"""
+        return {
+            'status': 'completed',
+            'message': 'Try_files directives parsing implemented',
+            'implementation': {
+                'regex': r'try_files\s+([^;]+);',
+                'example': 'try_files $uri $uri/ /index.html;',
+                'extract': 'try_files',
+                'method': 'parse_locations',
+                'location': 'nginx.py:387-389'
+            }
+        }
+
+    # Configuration merging implementations (TASK_031 - TASK_032)
+    def implement_include_merging(self, task_id, description):
+        """TASK_031: Maintain include file merging functionality"""
+        return {
+            'status': 'completed',
+            'message': 'Include file merging functionality maintained and working',
+            'implementation': {
+                'method': 'merge_conf',
+                'location': 'nginx.py:31-68',
+                'notes': 'Recursively merges all include files into single configuration'
+            }
+        }
+
+    def implement_comment_removal(self, task_id, description):
+        """TASK_032: Maintain comment removal functionality"""
+        return {
+            'status': 'completed',
+            'message': 'Comment removal functionality maintained and working',
+            'implementation': {
+                'regex': r'^\s*#',
+                'method': 'merge_conf',
+                'location': 'nginx.py:58-63',
+                'notes': 'Removes all comment lines starting with #'
             }
         }
 

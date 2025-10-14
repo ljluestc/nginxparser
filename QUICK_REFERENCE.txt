@@ -1,0 +1,448 @@
+================================================================================
+NGINXPARSER - QUICK REFERENCE GUIDE
+================================================================================
+
+Project: nginxparser v2.0.0
+Purpose: Parse nginx configuration files and extract structured data
+Language: Python 2.7 / 3.x
+Dependencies: None (standard library only)
+
+================================================================================
+QUICK START
+================================================================================
+
+1. BASIC USAGE
+--------------
+from nginx import NGINX
+
+nginx = NGINX('nginx.conf')
+print(nginx.servers)
+
+
+2. COMPLETE USAGE
+-----------------
+from nginx import NGINX
+import json
+
+nginx = NGINX('nginx.conf')
+config = {
+    'global': nginx.global_config,
+    'events': nginx.events_config,
+    'http': nginx.http_config,
+    'upstreams': nginx.backend,
+    'servers': nginx.servers
+}
+print(json.dumps(config, indent=2))
+
+
+3. RUN TESTS
+------------
+python3 test_full_features.py
+
+
+4. RUN TASKMASTER
+-----------------
+python3 taskmaster.py
+
+================================================================================
+PARSED DATA STRUCTURE
+================================================================================
+
+nginx.global_config
+├── user                    # Process user
+├── worker_processes        # Number of workers
+├── worker_cpu_affinity     # CPU binding
+├── error_log              # Error log path and level
+├── pid                    # PID file location
+└── worker_rlimit_nofile   # File descriptor limit
+
+nginx.events_config
+├── use                    # I/O model (epoll, select, etc.)
+├── worker_connections     # Max connections per worker
+├── multi_accept          # Multi-accept setting
+└── accept_mutex          # Accept mutex setting
+
+nginx.http_config
+├── default_type          # Default MIME type
+├── sendfile             # Sendfile setting
+├── keepalive_timeout    # Keepalive timeout
+└── gzip                 # Gzip compression
+
+nginx.backend (list of upstreams)
+└── [upstream]
+    ├── poolname          # Upstream name
+    ├── ip               # Space-separated IPs
+    ├── load_balancing   # Load balancing method
+    └── servers (list)
+        └── [server]
+            ├── address        # Server address:port
+            ├── weight        # Load balancing weight
+            ├── max_fails     # Max failure attempts
+            ├── fail_timeout  # Failure timeout
+            ├── backup        # Backup server flag
+            └── down          # Down server flag
+
+nginx.servers (list of server blocks)
+└── [server]
+    ├── port                    # Primary listen port
+    ├── listen                  # All listen directives
+    ├── server_name             # Server names
+    ├── root                    # Document root
+    ├── index                   # Index files
+    ├── access_log             # Access log path
+    ├── error_log              # Error log path
+    ├── ssl_certificate        # SSL certificate path
+    ├── ssl_certificate_key    # SSL key path
+    ├── ssl_protocols          # SSL protocols
+    ├── ssl_ciphers           # SSL ciphers
+    ├── include               # Include files
+    └── backend (list of locations)
+        └── [location]
+            ├── path            # Location path
+            ├── modifier        # Location modifier (=, ~, ~*, ^~)
+            ├── proxy_pass      # Proxy pass URL
+            ├── backend_ip      # Backend IPs
+            ├── backend_path    # Backend path
+            ├── fastcgi_pass    # FastCGI pass
+            ├── rewrites        # Rewrite rules
+            ├── try_files       # Try files directive
+            ├── root            # Location root
+            └── index           # Location index
+
+================================================================================
+SUPPORTED FEATURES (32 TASKS)
+================================================================================
+
+GLOBAL (6):
+✅ user
+✅ worker_processes
+✅ worker_cpu_affinity
+✅ error_log
+✅ pid
+✅ worker_rlimit_nofile
+
+EVENTS (5):
+✅ events block
+✅ use
+✅ worker_connections
+✅ multi_accept
+✅ accept_mutex
+
+HTTP (5):
+✅ include (http-level)
+✅ default_type
+✅ sendfile
+✅ keepalive_timeout
+✅ gzip
+
+UPSTREAM (4):
+✅ weight parameter
+✅ max_fails, fail_timeout
+✅ backup, down flags
+✅ load balancing methods (round_robin, least_conn, ip_hash, hash)
+
+SERVER (5):
+✅ existing server parsing
+✅ multiple listen directives
+✅ SSL/TLS configuration
+✅ access_log, error_log
+✅ root, index
+
+LOCATION (5):
+✅ existing location parsing
+✅ modifiers (=, ~, ~*, ^~)
+✅ fastcgi_pass
+✅ rewrite rules
+✅ try_files
+
+CONFIG MERGING (2):
+✅ include file merging
+✅ comment removal
+
+================================================================================
+COMMON QUERIES
+================================================================================
+
+# Get all server names
+for server in nginx.servers:
+    print(server['server_name'])
+
+# Get all SSL certificates
+for server in nginx.servers:
+    if server['ssl_certificate']:
+        print(f"{server['server_name']}: {server['ssl_certificate']}")
+
+# Get all upstream pools
+for upstream in nginx.backend:
+    print(f"{upstream['poolname']}: {upstream['ip']}")
+
+# Get all proxy_pass configurations
+for server in nginx.servers:
+    for location in server['backend']:
+        if 'proxy_pass' in location:
+            print(f"{server['server_name']}{location['path']} -> {location['proxy_pass']}")
+
+# Get all backend servers with weights
+for upstream in nginx.backend:
+    print(f"Upstream: {upstream['poolname']}")
+    for server in upstream['servers']:
+        weight = server.get('weight', 1)
+        print(f"  {server['address']} (weight={weight})")
+
+# Check for backup servers
+for upstream in nginx.backend:
+    for server in upstream['servers']:
+        if server.get('backup'):
+            print(f"Backup server: {server['address']} in {upstream['poolname']}")
+
+# Find all FastCGI locations
+for server in nginx.servers:
+    for location in server['backend']:
+        if 'fastcgi_pass' in location:
+            print(f"{server['server_name']}{location['path']} uses FastCGI: {location['fastcgi_pass']}")
+
+# Extract all rewrite rules
+for server in nginx.servers:
+    for location in server['backend']:
+        if 'rewrites' in location:
+            print(f"{server['server_name']}{location['path']}:")
+            for rewrite in location['rewrites']:
+                print(f"  {rewrite}")
+
+================================================================================
+FILES
+================================================================================
+
+Core:
+  nginx.py                    - Main parser
+  taskmaster.py               - Task automation
+
+Tests:
+  test.py                     - Basic tests
+  test_enhanced.py            - Enhanced tests
+  test_comprehensive.py       - Comprehensive tests
+  test_full_features.py       - Full validation
+
+Docs:
+  README.md                   - Main documentation
+  PRD.md                      - Product requirements (32 tasks)
+  COMPREHENSIVE_PRD.txt       - Complete PRD (100 tasks)
+  EXECUTION_SUMMARY.txt       - Execution results
+  FINAL_STATUS_REPORT.txt     - Status report
+  QUICK_REFERENCE.txt         - This file
+
+Configs:
+  nginx.conf                  - Basic test config
+  nginx_full_test.conf        - Full test config
+  nginx_comprehensive.conf    - Comprehensive test config
+
+================================================================================
+LOAD BALANCING METHODS
+================================================================================
+
+round_robin (default):
+  upstream backend {
+      server 10.0.0.1;
+      server 10.0.0.2;
+  }
+
+least_conn:
+  upstream backend {
+      least_conn;
+      server 10.0.0.1;
+      server 10.0.0.2;
+  }
+
+ip_hash:
+  upstream backend {
+      ip_hash;
+      server 10.0.0.1;
+      server 10.0.0.2;
+  }
+
+hash:
+  upstream backend {
+      hash $request_uri consistent;
+      server 10.0.0.1;
+      server 10.0.0.2;
+  }
+
+================================================================================
+LOCATION MODIFIERS
+================================================================================
+
+= (exact match):
+  location = /api {
+      proxy_pass http://backend;
+  }
+
+~ (regex case-sensitive):
+  location ~ \.php$ {
+      fastcgi_pass 127.0.0.1:9000;
+  }
+
+~* (regex case-insensitive):
+  location ~* \.(jpg|png|gif)$ {
+      root /var/www/images;
+  }
+
+^~ (prefix match):
+  location ^~ /static/ {
+      root /var/www;
+  }
+
+(no modifier - prefix match with lower priority):
+  location /api {
+      proxy_pass http://backend;
+  }
+
+================================================================================
+UPSTREAM SERVER PARAMETERS
+================================================================================
+
+weight:
+  server 10.0.0.1 weight=5;
+
+max_fails and fail_timeout:
+  server 10.0.0.1 max_fails=3 fail_timeout=30s;
+
+backup:
+  server 10.0.0.1 backup;
+
+down:
+  server 10.0.0.1 down;
+
+combined:
+  server 10.0.0.1 weight=5 max_fails=3 fail_timeout=30s;
+
+================================================================================
+TESTING
+================================================================================
+
+Run all tests:
+  python3 test.py
+  python3 test_enhanced.py
+  python3 test_comprehensive.py
+  python3 test_full_features.py
+
+Run taskmaster:
+  python3 taskmaster.py
+
+Quick validation:
+  python3 -c "from nginx import NGINX; n = NGINX('nginx.conf'); print(len(n.servers), 'servers found')"
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Issue: "python: command not found"
+Solution: Use python3 instead
+  python3 nginx.py
+
+Issue: Import error
+Solution: Ensure nginx.py is in current directory or PYTHONPATH
+  export PYTHONPATH=/path/to/nginxparser:$PYTHONPATH
+
+Issue: File not found
+Solution: Use absolute path or ensure file is in correct location
+  nginx = NGINX('/etc/nginx/nginx.conf')
+
+Issue: Empty results
+Solution: Check if config file has proper structure
+  - Ensure nginx.conf has server blocks
+  - Check if include files exist
+  - Verify file permissions
+
+Issue: Encoding errors (Python 2)
+Solution: Add encoding declaration at top of file
+  # coding: utf-8
+
+================================================================================
+LIMITATIONS
+================================================================================
+
+Not supported:
+  ❌ stream module
+  ❌ mail module
+  ❌ map blocks
+  ❌ geo blocks
+  ❌ split_clients blocks
+  ❌ if directives
+  ❌ Configuration validation
+  ❌ Configuration modification
+
+Supported:
+  ✅ http module
+  ✅ Global directives
+  ✅ Events block
+  ✅ Upstream blocks
+  ✅ Server blocks
+  ✅ Location blocks
+  ✅ Include files
+  ✅ Comment removal
+
+================================================================================
+PYTHON 2 vs PYTHON 3
+================================================================================
+
+Both versions supported!
+
+Python 2.7:
+  python nginx.py
+  python test.py
+
+Python 3.x:
+  python3 nginx.py
+  python3 test.py
+
+Code is compatible with both versions.
+
+================================================================================
+PERFORMANCE TIPS
+================================================================================
+
+1. Use absolute paths for faster file access
+   ✅ nginx = NGINX('/etc/nginx/nginx.conf')
+   ❌ nginx = NGINX('../../nginx.conf')
+
+2. Parse once, query multiple times
+   ✅ nginx = NGINX('nginx.conf')
+      for server in nginx.servers: ...
+      for upstream in nginx.backend: ...
+   ❌ nginx = NGINX('nginx.conf')
+      for server in nginx.servers: ...
+      nginx = NGINX('nginx.conf')  # Don't re-parse
+      for upstream in nginx.backend: ...
+
+3. Use JSON export for caching
+   import json
+   config = {...}
+   with open('cache.json', 'w') as f:
+       json.dump(config, f)
+
+================================================================================
+CONTRIBUTING
+================================================================================
+
+Want to add features?
+
+1. Check COMPREHENSIVE_PRD.txt for proposed tasks
+2. Add implementation to nginx.py
+3. Add test case to test suite
+4. Run all tests to ensure no regression
+5. Update documentation
+
+================================================================================
+LICENSE AND CREDITS
+================================================================================
+
+Project: nginxparser
+Repository: https://github.com/JoyChou93/nginxparser
+Version: 2.0.0
+Date: 2025-10-12
+
+Check repository for license information.
+
+================================================================================
+END OF QUICK REFERENCE
+================================================================================

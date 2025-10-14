@@ -9,9 +9,20 @@
       "Bash(py test_comprehensive.py)",
       "Bash(py test_full_features.py)",
       "Bash(findstr:*)",
-      "Bash(py:*)"
+      "Bash(py:*)",
+      "Bash(python3:*)",
+      "Bash(awk:*)",
+      "Bash(task-master parse-prd:*)",
+      "Bash(task-master models)",
+      "Bash(task-master:*)",
+      "mcp__task-master-ai__add_task",
+      "mcp__task-master-ai__get_tasks",
+      "mcp__task-master-ai__next_task"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enabledMcpjsonServers": [
+    "task-master-ai"
+  ]
 }

@@ -41,8 +41,13 @@ for i, server in enumerate(nginx.servers, 1):
     if server['backend']:
         print(f"    Backends:")
         for backend in server['backend']:
-            print(f"      Path: {backend['backend_path']}")
-            print(f"      IP:   {backend['backend_ip']}")
+            print(f"      Path: {backend['path']}")
+            if 'backend_ip' in backend:
+                print(f"      IP:   {backend['backend_ip']}")
+            elif 'proxy_pass' in backend:
+                print(f"      Proxy: {backend['proxy_pass']}")
+            elif 'fastcgi_pass' in backend:
+                print(f"      FastCGI: {backend['fastcgi_pass']}")
     print()
 
 print("="*70)

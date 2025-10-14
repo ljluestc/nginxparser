@@ -314,6 +314,9 @@ class NGINX:
             # TASK_030: 支持try_files
             locations = self.parse_locations(singleServer)
 
+            # TASK_001: 解析安全头部配置
+            security_headers_data = self.parse_security_headers(singleServer)
+
             server = {
                 'port': port,
                 'listen': listen_directives,
@@ -330,7 +333,67 @@ class NGINX:
                 'backend': locations
             }
 
+            # 合并安全头部数据到server字典
+            server.update(security_headers_data)
+
             self.servers.append(server)
+
+    def parse_security_headers(self, server_block):
+        """解析安全相关的HTTP头部配置 (TASK_001)
+
+        支持的安全头部：
+        - X-Frame-Options
+        - X-Content-Type-Options
+        - X-XSS-Protection
+        - Content-Security-Policy
+        - Strict-Transport-Security
+        - Referrer-Policy
+        - Permissions-Policy
+        - X-Download-Options
+
+        返回格式: {'security_headers': {'X-Frame-Options': 'DENY', ...}}
+        """
+        security_headers = {}
+
+        # 定义需要匹配的安全头部列表
+        security_header_names = [
+            'X-Frame-Options',
+            'X-Content-Type-Options',
+            'X-XSS-Protection',
+            'Content-Security-Policy',
+            'Strict-Transport-Security',
+            'Referrer-Policy',
+            'Permissions-Policy',
+            'X-Download-Options',
+            'X-Permitted-Cross-Domain-Policies',
+            'Feature-Policy',
+            'Expect-CT',
+            'Cross-Origin-Embedder-Policy',
+            'Cross-Origin-Opener-Policy',
+            'Cross-Origin-Resource-Policy'
+        ]
+
+        # 首先找出所有 add_header 指令
+        # 匹配模式：add_header Header-Name value; 或 add_header Header-Name "value" always;
+        # 支持带引号和不带引号的值
+        add_header_pattern = r'add_header\s+([A-Za-z-]+)\s+(["\']?)(.+?)\2\s*(?:always)?\s*;'
+        all_add_headers = re.findall(add_header_pattern, server_block, re.IGNORECASE | re.MULTILINE)
+
+        # 按header名称分组，保留最后一个出现的值
+        header_map = {}
+        for match in all_add_headers:
+            header_name = match[0]
+            header_value = match[2].strip()
+            header_map[header_name.lower()] = (header_name, header_value)
+
+        # 从分组中提取安全相关的header
+        for security_header in security_header_names:
+            security_header_lower = security_header.lower()
+            if security_header_lower in header_map:
+                actual_header_name, header_value = header_map[security_header_lower]
+                security_headers[actual_header_name] = header_value
+
+        return {'security_headers': security_headers} if security_headers else {'security_headers': {}}
 
     def parse_locations(self, server_block):
         """解析location块，支持proxy_pass, fastcgi_pass, rewrite, try_files"""

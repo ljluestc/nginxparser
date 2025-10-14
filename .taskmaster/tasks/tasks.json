@@ -1,0 +1,412 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": "1",
+        "title": "Parse security headers configuration",
+        "description": "Extract security-related headers from nginx configuration",
+        "details": "Parse directives: add_header X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Content-Security-Policy, etc. Output format: {'security_headers': {'X-Frame-Options': 'DENY', 'X-Content-Type-Options': 'nosniff'}}",
+        "testStrategy": "",
+        "status": "in-progress",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2025-10-12T23:48:22.368Z"
+      },
+      {
+        "id": "2",
+        "title": "Parse rate limiting configuration",
+        "description": "Extract rate limiting rules from nginx configuration",
+        "details": "Parse directives: limit_req_zone, limit_req, limit_conn_zone, limit_conn. Output format: {'rate_limit': {'zone': 'one', 'rate': '10r/s', 'burst': 5}}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": "3",
+        "title": "Parse access control lists (ACL)",
+        "description": "Extract allow/deny rules from nginx configuration",
+        "details": "Parse directives: allow, deny. Support IP addresses, CIDR notation, and 'all'. Output format: {'acl': [{'allow': '192.168.1.0/24'}, {'deny': 'all'}]}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": "4",
+        "title": "Parse authentication configuration",
+        "description": "Extract basic auth and auth_request settings",
+        "details": "Parse directives: auth_basic, auth_basic_user_file, auth_request, auth_request_set. Output format: {'auth': {'type': 'basic', 'realm': 'Restricted', 'user_file': '/etc/nginx/.htpasswd'}}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": "5",
+        "title": "Parse proxy cache configuration",
+        "description": "Extract proxy caching settings",
+        "details": "Parse directives: proxy_cache, proxy_cache_path, proxy_cache_valid, proxy_cache_key. Output format: {'proxy_cache': {'name': 'cache_zone', 'path': '/var/cache/nginx', 'levels': '1:2', 'keys_zone': '10m', 'max_size': '1g'}}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "6",
+        "title": "Parse fastcgi cache configuration",
+        "description": "Extract FastCGI caching settings",
+        "details": "Parse directives: fastcgi_cache, fastcgi_cache_path, fastcgi_cache_valid, fastcgi_cache_key. Output format: {'fastcgi_cache': {'name': 'fcgi_cache', 'path': '/var/cache/fcgi', 'size': '100m'}}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "7",
+        "title": "Parse cache bypass and no-cache rules",
+        "description": "Extract cache control directives",
+        "details": "Parse directives: proxy_cache_bypass, proxy_no_cache, fastcgi_cache_bypass, fastcgi_no_cache. Output format: {'cache_bypass': ['$cookie_nocache', '$arg_nocache'], 'no_cache': ['$http_pragma', '$http_authorization']}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "8",
+        "title": "Parse proxy header modifications",
+        "description": "Extract proxy_set_header directives",
+        "details": "Parse directive: proxy_set_header. Output format: {'proxy_headers': {'Host': '$host', 'X-Real-IP': '$remote_addr', 'X-Forwarded-For': '$proxy_add_x_forwarded_for'}}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "9",
+        "title": "Parse proxy timeout settings",
+        "description": "Extract proxy timing configurations",
+        "details": "Parse directives: proxy_connect_timeout, proxy_read_timeout, proxy_send_timeout. Output format: {'proxy_timeouts': {'connect': '60s', 'read': '60s', 'send': '60s'}}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "10",
+        "title": "Parse proxy buffering settings",
+        "description": "Extract proxy buffer configurations",
+        "details": "Parse directives: proxy_buffering, proxy_buffer_size, proxy_buffers, proxy_busy_buffers_size. Output format: {'proxy_buffering': {'enabled': 'on', 'buffer_size': '4k', 'buffers': '8 4k', 'busy_buffers_size': '8k'}}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "11",
+        "title": "Parse client body size limits",
+        "description": "Extract client request body size limits",
+        "details": "Parse directive: client_max_body_size. Output format: {'client_max_body_size': '100m'}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "12",
+        "title": "Parse timeout configurations",
+        "description": "Extract various timeout settings",
+        "details": "Parse directives: client_body_timeout, client_header_timeout, send_timeout, keepalive_timeout. Output format: {'timeouts': {'client_body': '60s', 'client_header': '60s', 'send': '60s', 'keepalive': '65s'}}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "13",
+        "title": "Parse buffer size configurations",
+        "description": "Extract buffer size settings",
+        "details": "Parse directives: client_body_buffer_size, client_header_buffer_size, large_client_header_buffers. Output format: {'buffers': {'client_body': '128k', 'client_header': '1k', 'large_client_header': '4 8k'}}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "14",
+        "title": "Parse open file cache settings",
+        "description": "Extract file caching configurations",
+        "details": "Parse directives: open_file_cache, open_file_cache_valid, open_file_cache_min_uses, open_file_cache_errors. Output format: {'file_cache': {'max': '1000', 'inactive': '20s', 'valid': '30s', 'min_uses': '2', 'errors': 'on'}}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "15",
+        "title": "Parse log format definitions",
+        "description": "Extract custom log format definitions",
+        "details": "Parse directive: log_format. Output format: {'log_formats': {'main': '$remote_addr - $remote_user [$time_local] \\\"$request\\\" $status $body_bytes_sent', 'json': '{\\\"timestamp\\\": \\\"$time_iso8601\\\", \\\"remote_addr\\\": \\\"$remote_addr\\\"}'}}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "low",
+        "subtasks": []
+      },
+      {
+        "id": "16",
+        "title": "Parse conditional logging",
+        "description": "Extract conditional log directives",
+        "details": "Parse directive: access_log with if parameter. Output format: {'conditional_logging': {'path': '/var/log/nginx/access.log', 'format': 'main', 'condition': '$loggable'}}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "low",
+        "subtasks": []
+      },
+      {
+        "id": "17",
+        "title": "Parse map blocks",
+        "description": "Extract map block configurations for variable mapping",
+        "details": "Parse directive: map $http_upgrade $connection_upgrade { default upgrade; '' close; }. Output format: {'maps': [{'input': '$http_upgrade', 'output': '$connection_upgrade', 'default': 'upgrade', 'rules': {'': 'close'}}]}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "18",
+        "title": "Parse geo blocks",
+        "description": "Extract geo block configurations for IP-based variables",
+        "details": "Parse directive: geo $country { default US; 10.0.0.0/8 CN; 192.168.0.0/16 RU; }. Output format: {'geo_blocks': [{'variable': '$country', 'default': 'US', 'rules': {'10.0.0.0/8': 'CN', '192.168.0.0/16': 'RU'}}]}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "19",
+        "title": "Parse split_clients blocks",
+        "description": "Extract A/B testing configurations",
+        "details": "Parse directive: split_clients \"${remote_addr}AAA\" $variant { 50% \"a\"; 50% \"b\"; }. Output format: {'split_clients': [{'seed': '${remote_addr}AAA', 'variable': '$variant', 'splits': {'50%': 'a', '50%': 'b'}}]}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "20",
+        "title": "Validate syntax correctness",
+        "description": "Check for basic syntax errors in configuration",
+        "details": "Validate: matching braces, semicolons, valid directive names, proper nesting. Output format: {'valid': True/False, 'errors': [{'line': 42, 'message': 'Missing semicolon'}]}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": "21",
+        "title": "Detect missing required directives",
+        "description": "Identify missing essential configuration",
+        "details": "Check for: server_name in server blocks, listen directives, root or proxy_pass in locations. Output format: {'warnings': [{'server': 0, 'message': 'Missing server_name'}]}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": "22",
+        "title": "Detect conflicting directives",
+        "description": "Identify contradictory configurations",
+        "details": "Check for: conflicting ssl_protocols, duplicate server_name+listen combinations, conflicting location priorities. Output format: {'conflicts': [{'type': 'duplicate_server', 'server_names': ['example.com'], 'locations': ['server 0', 'server 1']}]}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": "23",
+        "title": "Provide detailed error messages",
+        "description": "Generate human-readable error descriptions",
+        "details": "Enhance error reporting with context, suggestions for fixes, and line numbers. Format: {'error': 'Syntax error', 'line': 42, 'context': 'server {', 'suggestion': 'Add closing brace'}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "24",
+        "title": "Support error recovery",
+        "description": "Continue parsing after encountering errors",
+        "details": "Implement graceful degradation: skip malformed blocks, continue with valid sections, annotate errors in output. Output includes both partial configuration and error list.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "25",
+        "title": "YAML export",
+        "description": "Export parsed configuration as YAML",
+        "details": "Convert parsed dict to YAML format. Use standard library yaml module if available, otherwise implement basic YAML serialization. Maintain structure and data types.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "low",
+        "subtasks": []
+      },
+      {
+        "id": "26",
+        "title": "TOML export",
+        "description": "Export parsed configuration as TOML",
+        "details": "Convert parsed dict to TOML format. Use standard library toml module (Python 3.11+) or implement basic TOML serialization. Maintain structure and data types.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "low",
+        "subtasks": []
+      },
+      {
+        "id": "27",
+        "title": "XML export",
+        "description": "Export parsed configuration as XML",
+        "details": "Convert parsed dict to XML format. Use xml.etree.ElementTree from standard library. Create proper XML structure with elements and attributes.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "low",
+        "subtasks": []
+      },
+      {
+        "id": "28",
+        "title": "Filter by server name",
+        "description": "Extract configuration for specific server_name",
+        "details": "Implement filtering function: get_server_by_name('example.com'). Return only matching server block with all its configurations.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "low",
+        "subtasks": []
+      },
+      {
+        "id": "29",
+        "title": "Filter by directive type",
+        "description": "Extract all instances of a specific directive",
+        "details": "Implement filtering function: get_all_directives('ssl_certificate'). Return list of all occurrences with their values and locations (server index, location path).",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "low",
+        "subtasks": []
+      },
+      {
+        "id": "30",
+        "title": "Query by path pattern",
+        "description": "Find all locations matching a pattern",
+        "details": "Implement query function: find_locations_matching('/api/*'). Support glob patterns and regex. Return matching location blocks with their configurations.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "low",
+        "subtasks": []
+      },
+      {
+        "id": "31",
+        "title": "Support ngx_http_v2_module directives",
+        "description": "Parse HTTP/2 specific directives",
+        "details": "Parse directives: http2, http2_push, http2_push_preload, http2_max_field_size, http2_max_header_size. Output format: {'http2': 'on', 'http2_push': '/static/style.css', 'http2_max_field_size': '4k'}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "32",
+        "title": "Support ngx_stream_module directives",
+        "description": "Parse stream (TCP/UDP) configurations",
+        "details": "Parse stream block: stream { server { listen 12345; proxy_pass backend; } }. Output format: {'stream': {'servers': [{'listen': '12345', 'proxy_pass': 'backend'}]}}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "33",
+        "title": "Support ngx_http_grpc_module directives",
+        "description": "Parse gRPC proxy configurations",
+        "details": "Parse directives: grpc_pass, grpc_set_header, grpc_read_timeout, grpc_send_timeout, grpc_ssl_certificate. Output format: {'grpc_pass': 'grpc://backend', 'grpc_headers': {'Content-Type': 'application/grpc'}}",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "34",
+        "title": "Create CLI tool",
+        "description": "Command-line interface for parsing nginx configs",
+        "details": "Create executable: nginxparser parse nginx.conf --output json/yaml/toml. Support options: --validate, --filter, --query. Implement argparse-based CLI with help messages.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "35",
+        "title": "Add validation command",
+        "description": "CLI command to validate configurations",
+        "details": "Implement: nginxparser validate nginx.conf. Check syntax, missing directives, conflicts. Exit with code 0 on success, 1 on errors. Print validation report.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": "36",
+        "title": "Add query command",
+        "description": "CLI command to query specific directives",
+        "details": "Implement: nginxparser query nginx.conf --directive ssl_certificate --server example.com --location /api. Support filtering and output formatting.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "version": "1.0.0",
+      "lastModified": "2025-10-12T23:48:22.369Z",
+      "taskCount": 36,
+      "completedCount": 0,
+      "tags": [
+        "master"
+      ]
+    }
+  }
+}
