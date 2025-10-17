@@ -1,0 +1,27 @@
+# Development dependencies for nginxparser
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+coverage>=7.0.0
+
+# Linting and formatting
+flake8>=6.0.0
+pylint>=2.17.0
+black>=23.0.0
+isort>=5.12.0
+
+# Type checking
+mypy>=1.0.0
+
+# Security
+bandit>=1.7.0
+
+# Pre-commit hooks
+pre-commit>=3.0.0
+
+# Build and packaging
+build>=0.10.0
+twine>=4.0.0
+setuptools>=45.0.0
+wheel>=0.37.0

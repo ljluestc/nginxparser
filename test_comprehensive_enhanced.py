@@ -16,7 +16,6 @@ import json
 import os
 import tempfile
 import shutil
-import sys
 from nginx import NGINX
 
 class ComprehensiveTestSuite(unittest.TestCase):

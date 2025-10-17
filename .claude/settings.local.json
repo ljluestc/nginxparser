@@ -17,7 +17,11 @@
       "Bash(task-master:*)",
       "mcp__task-master-ai__add_task",
       "mcp__task-master-ai__get_tasks",
-      "mcp__task-master-ai__next_task"
+      "mcp__task-master-ai__next_task",
+      "Bash(for i in {2..19} {25..30} {34..36})",
+      "Bash(do task-master set-status:*)",
+      "Bash(done)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []

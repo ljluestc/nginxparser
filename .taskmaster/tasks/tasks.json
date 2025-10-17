@@ -7,11 +7,11 @@
         "description": "Extract security-related headers from nginx configuration",
         "details": "Parse directives: add_header X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Content-Security-Policy, etc. Output format: {'security_headers': {'X-Frame-Options': 'DENY', 'X-Content-Type-Options': 'nosniff'}}",
         "testStrategy": "",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [],
         "priority": "high",
         "subtasks": [],
-        "updatedAt": "2025-10-12T23:48:22.368Z"
+        "updatedAt": "2025-10-17T07:06:45.886Z"
       },
       {
         "id": "2",
@@ -401,9 +401,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-10-12T23:48:22.369Z",
+      "lastModified": "2025-10-17T07:06:45.887Z",
       "taskCount": 36,
-      "completedCount": 0,
+      "completedCount": 1,
       "tags": [
         "master"
       ]

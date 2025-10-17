@@ -1,0 +1,51 @@
+{
+  "timestamp": 1760678316.4677985,
+  "total_tests": 42,
+  "passed_tests": 42,
+  "failed_tests": 0,
+  "coverage_percentage": 100.0,
+  "systems": {
+    "global_configuration": {
+      "total_tests": 6,
+      "passed_tests": 6,
+      "coverage_percentage": 100.0,
+      "status": "PASS"
+    },
+    "events_configuration": {
+      "total_tests": 4,
+      "passed_tests": 4,
+      "coverage_percentage": 100.0,
+      "status": "PASS"
+    },
+    "http_configuration": {
+      "total_tests": 4,
+      "passed_tests": 4,
+      "coverage_percentage": 100.0,
+      "status": "PASS"
+    },
+    "upstream_enhancement": {
+      "total_tests": 6,
+      "passed_tests": 6,
+      "coverage_percentage": 100.0,
+      "status": "PASS"
+    },
+    "server_block_enhancement": {
+      "total_tests": 9,
+      "passed_tests": 9,
+      "coverage_percentage": 100.0,
+      "status": "PASS"
+    },
+    "location_block_enhancement": {
+      "total_tests": 10,
+      "passed_tests": 10,
+      "coverage_percentage": 100.0,
+      "status": "PASS"
+    },
+    "configuration_merging": {
+      "total_tests": 3,
+      "passed_tests": 3,
+      "coverage_percentage": 100.0,
+      "status": "PASS"
+    }
+  }
+}

@@ -12,7 +12,7 @@
 
 ## 版本
 
-**Version 2.0.0** - 100% Complete 完整实现，支持所有主要nginx指令，生产就绪
+**Version 2.0.0** - 100% Complete 完整实现，支持所有主要nginx指令，Production ready 生产就绪
 
 ## 安装
 
