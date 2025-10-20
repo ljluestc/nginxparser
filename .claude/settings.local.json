@@ -21,7 +21,9 @@
       "Bash(for i in {2..19} {25..30} {34..36})",
       "Bash(do task-master set-status:*)",
       "Bash(done)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(cat TASK_002_SUMMARY.md)",
+      "mcp__task-master-ai__get_task"
     ],
     "deny": [],
     "ask": []
